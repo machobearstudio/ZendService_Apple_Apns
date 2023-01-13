@@ -10,6 +10,7 @@
 
 namespace ZendService\Apple\Apns\Client;
 
+use CurlHandle;
 use ZendService\Apple\Exception;
 
 /**
@@ -21,14 +22,14 @@ abstract class AbstractClient
      * APNS URI Constants
      * @var int
      */
-    const SANDBOX_URI = 0;
-    const PRODUCTION_URI = 1;
+    final const SANDBOX_URI = 0;
+    final const PRODUCTION_URI = 1;
 
     /**
      * APNS URIs
      * @var array
      */
-    protected $uris = [
+    protected array $uris = [
         'https://api.development.push.apple.com',
         'https://api.push.apple.com'
     ];
@@ -37,71 +38,68 @@ abstract class AbstractClient
      * Is Connected
      * @var boolean
      */
-    protected $isConnected = false;
+    protected bool $isConnected = false;
 
     /**
      * the cURL handle
-     * @var resource
+     * @var ?CurlHandle
      */
-    protected $http2ch;
+    protected ?CurlHandle $http2ch = null;
 
     /**
      * the selected environment
      * @var int
      */
-    protected $environment;
+    protected int $environment;
 
     /**
      * the certificate path
      * @var string
      */
-    protected $certificate;
+    protected string $certificate;
 
     /**
      * the certificate passPhrase
-     * @var string
+     * @var string|null
      */
-    protected $passPhrase;
+    protected ?string $passPhrase;
 
     /**
      * Curl response status
      * @var int
      */
-    protected $responseStatus;
+    protected int $responseStatus = 200;
 
     /**
      * Push response header identifier app-id
-     * @var string
+     * @var null|string
      */
-    protected $responseId;
+    protected ?string $responseId = null;
 
     /**
      * Push response JSON body
      * @var string
      */
-    protected $responseBody;
+    protected string $responseBody = "";
 
     /**
      * Open Connection to APNS Service
      *
-     * @param  int                                $environment
-     * @param  string                             $certificate
-     * @param  string                             $passPhrase
-     * @throws Exception\RuntimeException
+     * @param string|null $passPhrase
      * @throws Exception\InvalidArgumentException
-     * @return AbstractClient
+     * @throws Exception\RuntimeException
      */
-    public function open($environment, $certificate, $passPhrase = null)
+    public function open(int $environment, string $certificate, string $passPhrase = null): AbstractClient
     {
         if ($this->isConnected) {
             throw new Exception\RuntimeException('Connection has already been opened and must be closed');
         }
 
-        if (! array_key_exists($environment, $this->uris)) {
+        if (!array_key_exists($environment, $this->uris)) {
             throw new Exception\InvalidArgumentException('Environment must be one of PRODUCTION_URI or SANDBOX_URI');
         }
 
-        if (! is_string($certificate) || ! file_exists($certificate)) {
+        if (!file_exists($certificate)) {
             throw new Exception\InvalidArgumentException('Certificate must be a valid path to a APNS certificate');
         }
 
@@ -127,14 +125,12 @@ abstract class AbstractClient
 
     /**
      * Close Connection
-     *
-     * @return AbstractClient
      */
-    public function close()
+    public function close(): AbstractClient
     {
-        if (false !== $this->http2ch) {
+        if (null !== $this->http2ch) {
             curl_close($this->http2ch);
-            $this->http2ch = false;
+            $this->http2ch = null;
             $this->isConnected = false;
         }
         return $this;
@@ -142,53 +138,48 @@ abstract class AbstractClient
 
     /**
      * Is Connected
-     *
-     * @return boolean
      */
-    public function isConnected()
+    public function isConnected(): bool
     {
         return $this->isConnected;
     }
 
     /**
      * Read from the Server
-     *
-     * @param  int    $length
-     * @return string
      */
-    protected function read($length = 6)
+    protected function read(int $length = 6): string
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must open the connection prior to reading data');
         }
         return "";
     }
 
     /**
-     * @param string $app_bundle_id    the app bundle id
-     * @param string $payload          the payload to send (JSON)
-     * @param string $token            the token of the device
-     * @return mixed                   the status code (see https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns?language=objc)
+     * @param string $app_bundle_id the app bundle id
+     * @param string $payload the payload to send (JSON)
+     * @param string $token the token of the device
+     * @return string|bool                   the status code (see https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns?language=objc)
      */
-    protected function write($app_bundle_id, $payload, $token)
+    protected function write(string $app_bundle_id, string $payload, string $token): string|bool
     {
         $http2_server = $this->uris[$this->environment];
 
         // url (endpoint)
-        $url = "{$http2_server}/3/device/{$token}";
+        $url = "$http2_server/3/device/$token";
 
         // certificate
         $cert = realpath($this->certificate);
 
         // headers
         $headers = [
-            "apns-topic: {$app_bundle_id}",
+            "apns-topic: $app_bundle_id",
             "User-Agent: My Sender"
         ];
 
         // other curl options
         curl_setopt_array($this->http2ch, [
-            CURLOPT_URL => "{$url}",
+            CURLOPT_URL => "$url",
             CURLOPT_PORT => 443,
             CURLOPT_HTTPHEADER => $headers,
             CURLOPT_POST => true,
@@ -209,15 +200,15 @@ abstract class AbstractClient
         $this->responseStatus = curl_getinfo($this->http2ch, CURLINFO_HTTP_CODE);
 
         $parts = explode("\r\n\r\nHTTP/", $result);
-        $parts = (count($parts) > 1 ? 'HTTP/' : '').array_pop($parts);
-        list($headers, $body) = explode("\r\n\r\n", $parts, 2);
+        $parts = (count($parts) > 1 ? 'HTTP/' : '') . array_pop($parts);
+        [$headers, $body] = explode("\r\n\r\n", $parts, 2);
         $this->responseBody = $body;
 
         $headerList = explode("\r\n", $headers);
         $this->responseId = "";
         foreach ($headerList as $i => $header) {
             if ($i > 0) {
-                list ($key, $value) = explode(': ', $header);
+                [$key, $value] = explode(': ', $header);
                 if (strcmp('apns-id', $key) == 0) {
                     $this->responseId = $value;
                     break;

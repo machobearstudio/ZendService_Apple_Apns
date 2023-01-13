@@ -10,7 +10,7 @@
 
 namespace ZendServiceTest\Apple\Apns\TestAsset;
 
-use ZendService\Apple\Apns\Exception;
+use ZendService\Apple\Exception;
 use ZendService\Apple\Apns\Client\Message as ZfMessageClient;
 
 /**
@@ -28,22 +28,22 @@ class MessageClient extends ZfMessageClient
      *
      * @var string
      */
-    protected $readResponse;
+    protected string $readResponse;
 
     /**
      * Write Response
      *
-     * @var mixed
+     * @var string|null
      */
-    protected $writeResponse;
+    protected ?string $writeResponse = null;
 
     /**
      * Set the Response
      *
-     * @param  string        $str
+     * @param string $str
      * @return MessageClient
      */
-    public function setReadResponse($str)
+    public function setReadResponse(string $str): MessageClient
     {
         $this->readResponse = $str;
 
@@ -53,10 +53,11 @@ class MessageClient extends ZfMessageClient
     /**
      * Set the write response
      *
-     * @param  mixed         $resp
+     * @param mixed $resp
      * @return MessageClient
+     * @noinspection PhpUnused
      */
-    public function setWriteResponse($resp)
+    public function setWriteResponse(mixed $resp): MessageClient
     {
         $this->writeResponse = $resp;
 
@@ -66,9 +67,12 @@ class MessageClient extends ZfMessageClient
     /**
      * Connect to Host
      *
+     * @param $host
+     * @param array $ssl
      * @return MessageClient
+     * @noinspection PhpUnusedParameterInspection
      */
-    protected function connect($host, array $ssl)
+    protected function connect($host, array $ssl): MessageClient
     {
         return $this;
     }
@@ -76,12 +80,12 @@ class MessageClient extends ZfMessageClient
     /**
      * Return Response
      *
-     * @param  string $length
+     * @param int $length
      * @return string
      */
-    protected function read($length = 1024)
+    protected function read(int $length = 1024): string
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must open the connection prior to reading data');
         }
         $ret = substr($this->readResponse, 0, $length);
@@ -91,19 +95,19 @@ class MessageClient extends ZfMessageClient
     }
 
     /**
-     * @param string $app_bundle_id    the app bundle id
-     * @param string $payload          the payload to send (JSON)
-     * @param string $token            the token of the device
-     * @return mixed                   the status code
+     * @param string $app_bundle_id the app bundle id
+     * @param string $payload the payload to send (JSON)
+     * @param string $token the token of the device
+     * @return bool|string the status code
      */
-    protected function write($app_bundle_id, $payload, $token)
+    protected function write(string $app_bundle_id, string $payload, string $token): bool|string
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must open the connection prior to writing data');
         }
         $ret = $this->writeResponse;
         $this->writeResponse = null;
 
-        return (null === $ret) ? strlen($payload) : $ret;
+        return $ret ?? strlen($payload);
     }
 }

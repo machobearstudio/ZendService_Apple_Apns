@@ -10,7 +10,7 @@
 
 namespace ZendServiceTest\Apple\Apns\TestAsset;
 
-use ZendService\Apple\Apns\Exception;
+use ZendService\Apple\Exception;
 use ZendService\Apple\Apns\Client\Feedback as ZfFeedbackClient;
 
 /**
@@ -26,24 +26,24 @@ class FeedbackClient extends ZfFeedbackClient
     /**
      * Read Response
      *
-     * @var string
+     * @var string|null
      */
-    protected $readResponse;
+    protected ?string $readResponse;
 
     /**
      * Write Response
      *
      * @var mixed
      */
-    protected $writeResponse;
+    protected mixed $writeResponse;
 
     /**
      * Set the Response
      *
-     * @param  string         $str
+     * @param string $str
      * @return FeedbackClient
      */
-    public function setReadResponse($str)
+    public function setReadResponse(string $str): FeedbackClient
     {
         $this->readResponse = $str;
 
@@ -53,10 +53,11 @@ class FeedbackClient extends ZfFeedbackClient
     /**
      * Set the write response
      *
-     * @param  mixed          $resp
+     * @param mixed $resp
      * @return FeedbackClient
+     * @noinspection PhpUnused
      */
-    public function setWriteResponse($resp)
+    public function setWriteResponse(mixed $resp): FeedbackClient
     {
         $this->writeResponse = $resp;
 
@@ -66,9 +67,12 @@ class FeedbackClient extends ZfFeedbackClient
     /**
      * Connect to Host
      *
+     * @param $host
+     * @param array $ssl
      * @return FeedbackClient
+     * @noinspection PhpUnusedParameterInspection
      */
-    protected function connect($host, array $ssl)
+    protected function connect($host, array $ssl): FeedbackClient
     {
         return $this;
     }
@@ -76,15 +80,19 @@ class FeedbackClient extends ZfFeedbackClient
     /**
      * Return Response
      *
-     * @param  string $length
+     * @param int $length
      * @return string
      */
-    protected function read($length = 1024)
+    protected function read(int $length = 1024): string
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must open the connection prior to reading data');
         }
-        $ret = substr($this->readResponse, 0, $length);
+        if ($this->readResponse != null) {
+            $ret = substr($this->readResponse, 0, $length);
+        } else {
+            $ret = "";
+        }
         $this->readResponse = null;
 
         return $ret;
@@ -93,17 +101,19 @@ class FeedbackClient extends ZfFeedbackClient
     /**
      * Write and Return Length
      *
-     * @param  string $payload
-     * @return int
+     * @param string $app_bundle_id
+     * @param string $payload
+     * @param string $token
+     * @return bool|string
      */
-    protected function write($payload)
+    protected function write(string $app_bundle_id, string $payload, string $token): bool|string
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must open the connection prior to writing data');
         }
         $ret = $this->writeResponse;
         $this->writeResponse = null;
 
-        return (null === $ret) ? strlen($payload) : $ret;
+        return $ret ?? strlen($app_bundle_id);
     }
 }

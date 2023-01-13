@@ -10,7 +10,8 @@
 
 namespace ZendService\Apple\Apns;
 
-use Zend\Json\Encoder as JsonEncoder;
+use DateTime;
+use Laminas\Json\Encoder;
 use ZendService\Apple\Exception;
 
 /**
@@ -22,80 +23,80 @@ class Message
      * Identifier
      * @var string
      */
-    protected $id;
+    protected string $id;
 
     /**
      * App Bundle Id
      * @var string
      */
-    protected $bundleId;
+    protected string $bundleId;
 
     /**
      * APN Token
      * @var string
      */
-    protected $token;
+    protected string $token;
 
     /**
      * Expiration
      * @var int|null
      */
-    protected $expire;
+    protected ?int $expire = null;
 
     /**
      * Alert Message
      * @var Message\Alert|null
      */
-    protected $alert;
+    protected ?Message\Alert $alert = null;
 
     /**
      * Badge
      * @var int|null
      */
-    protected $badge;
+    protected ?int $badge = null;
 
     /**
      * Sound
      * @var string|null
      */
-    protected $sound;
+    protected ?string $sound = null;
 
     /**
      * Mutable Content
      * @var int|null
      */
-    private $mutableContent;
+    private ?int $mutableContent = null;
 
     /**
      * Content Available
      * @var int|null
      */
-    protected $contentAvailable;
+    protected ?int $contentAvailable = null;
 
     /**
      * Category
      * @var string|null
      */
-    protected $category;
+    protected ?string $category = null;
 
     /**
      * URL Arguments
      * @var array|null
      */
-    protected $urlArgs;
+    protected ?array $urlArgs = null;
 
     /**
      * Custom Attributes
      * @var array|null
      */
-    protected $custom;
+    protected ?array $custom = null;
 
     /**
      * Get Identifier
      *
      * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
@@ -103,16 +104,12 @@ class Message
     /**
      * Set Identifier
      *
-     * @param  string  $id
+     * @param string $id
      * @return Message
      */
-    public function setId($id)
+    public function setId(string $id): Message
     {
-        if (! is_scalar($id)) {
-            throw new Exception\InvalidArgumentException('Identifier must be a scalar value');
-        }
         $this->id = $id;
-
         return $this;
     }
 
@@ -121,7 +118,7 @@ class Message
      *
      * @return string
      */
-    public function getBundleId()
+    public function getBundleId(): string
     {
         return $this->bundleId;
     }
@@ -129,17 +126,11 @@ class Message
     /**
      * Set App Bundle Id
      *
-     * @param  string  $bundleId
+     * @param string $bundleId
      * @return Message
      */
-    public function setBundleId($bundleId)
+    public function setBundleId(string $bundleId): Message
     {
-        if (! is_string($bundleId)) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                'App Bundle Id must be a string, "%s" given.',
-                gettype($bundleId)
-            ));
-        }
         if (strlen($bundleId) == 0) {
             throw new Exception\InvalidArgumentException(
                 'App Bundle Id must not be an empty string'
@@ -154,7 +145,7 @@ class Message
      *
      * @return string
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -162,18 +153,11 @@ class Message
     /**
      * Set Token
      *
-     * @param  string  $token
+     * @param string $token
      * @return Message
      */
-    public function setToken($token)
+    public function setToken(string $token): Message
     {
-        if (! is_string($token)) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                'Device token must be a string, "%s" given.',
-                gettype($token)
-            ));
-        }
-
         if (preg_match('/[^0-9a-f]/i', $token)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Device token must be mask "%s". Token given: "%s"',
@@ -197,9 +181,9 @@ class Message
     /**
      * Get Expiration
      *
-     * @return int
+     * @return int|null
      */
-    public function getExpire()
+    public function getExpire(): ?int
     {
         return $this->expire;
     }
@@ -207,14 +191,14 @@ class Message
     /**
      * Set Expiration
      *
-     * @param  int|DateTime $expire
+     * @param int|DateTime $expire
      * @return Message
      */
-    public function setExpire($expire)
+    public function setExpire(int|DateTime $expire): Message
     {
-        if ($expire instanceof \DateTime) {
+        if ($expire instanceof DateTime) {
             $expire = $expire->getTimestamp();
-        } elseif (! is_numeric($expire) || $expire != (int) $expire) {
+        } elseif (!is_numeric($expire) || $expire != (int)$expire) {
             throw new Exception\InvalidArgumentException('Expiration must be a DateTime object or a unix timestamp');
         }
         $this->expire = $expire;
@@ -227,7 +211,7 @@ class Message
      *
      * @return Message\Alert|null
      */
-    public function getAlert()
+    public function getAlert(): ?Message\Alert
     {
         return $this->alert;
     }
@@ -235,12 +219,12 @@ class Message
     /**
      * Set Alert
      *
-     * @param  string|Message\Alert|null $alert
+     * @param string|Message\Alert|null $alert
      * @return Message
      */
-    public function setAlert($alert)
+    public function setAlert(Message\Alert|string|null $alert): Message
     {
-        if (! $alert instanceof Message\Alert && ! is_null($alert)) {
+        if (!$alert instanceof Message\Alert && !is_null($alert)) {
             $alert = new Message\Alert($alert);
         }
         $this->alert = $alert;
@@ -253,7 +237,7 @@ class Message
      *
      * @return int|null
      */
-    public function getBadge()
+    public function getBadge(): ?int
     {
         return $this->badge;
     }
@@ -261,13 +245,13 @@ class Message
     /**
      * Set Badge
      *
-     * @param  int|null $badge
+     * @param int|null $badge
      * @return Message
      */
-    public function setBadge($badge)
+    public function setBadge(?int $badge): Message
     {
-        if ($badge !== null && ! $badge == (int) $badge) {
-            throw new Exception\InvalidArgumentException('Badge must be null or an integer');
+        if ($badge !== null) {
+            throw new Exception\InvalidArgumentException('Badge must be null');
         }
         $this->badge = $badge;
 
@@ -279,7 +263,7 @@ class Message
      *
      * @return string|null
      */
-    public function getSound()
+    public function getSound(): ?string
     {
         return $this->sound;
     }
@@ -287,13 +271,13 @@ class Message
     /**
      * Set Sound
      *
-     * @param  string|null $sound
+     * @param string|null $sound
      * @return Message
      */
-    public function setSound($sound)
+    public function setSound(?string $sound): Message
     {
-        if ($sound !== null && ! is_string($sound)) {
-            throw new Exception\InvalidArgumentException('Sound must be null or a string');
+        if ($sound !== null && empty($sound)) {
+            throw new Exception\InvalidArgumentException('Sound must be null or a non empty string');
         }
         $this->sound = $sound;
 
@@ -304,11 +288,11 @@ class Message
      * Set Mutable Content
      *
      * @param int|null $value
-     * @returns Message
+     * @return Message
      */
-    public function setMutableContent($value)
+    public function setMutableContent(?int $value): Message
     {
-        if ($value !== null && ! is_int($value)) {
+        if ($value !== null && !is_int($value)) {
             throw new Exception\InvalidArgumentException(
                 'Mutable Content must be null or an integer, received: ' . gettype($value)
             );
@@ -328,7 +312,7 @@ class Message
      *
      * @return int|null
      */
-    public function getContentAvailable()
+    public function getContentAvailable(): ?int
     {
         return $this->contentAvailable;
     }
@@ -336,12 +320,12 @@ class Message
     /**
      * Set Content Available
      *
-     * @param  int|null $value
+     * @param int|null $value
      * @return Message
      */
-    public function setContentAvailable($value)
+    public function setContentAvailable(?int $value): Message
     {
-        if ($value !== null && ! is_int($value)) {
+        if ($value !== null && !is_int($value)) {
             throw new Exception\InvalidArgumentException('Content Available must be null or an integer');
         }
         $this->contentAvailable = $value;
@@ -354,7 +338,7 @@ class Message
      *
      * @return string|null
      */
-    public function getCategory()
+    public function getCategory(): ?string
     {
         return $this->category;
     }
@@ -362,12 +346,12 @@ class Message
     /**
      * Set Category
      *
-     * @param  string|null $category
+     * @param string|null $category
      * @return Message
      */
-    public function setCategory($category)
+    public function setCategory(?string $category): Message
     {
-        if ($category !== null && ! is_string($category)) {
+        if ($category == null || !is_string($category)) {
             throw new Exception\InvalidArgumentException('Category must be null or a string');
         }
         $this->category = $category;
@@ -380,7 +364,7 @@ class Message
      *
      * @return array|null
      */
-    public function getUrlArgs()
+    public function getUrlArgs(): ?array
     {
         return $this->urlArgs;
     }
@@ -388,10 +372,10 @@ class Message
     /**
      * Set URL arguments
      *
-     * @param  array|null $urlArgs
+     * @param array $urlArgs
      * @return Message
      */
-    public function setUrlArgs(array $urlArgs)
+    public function setUrlArgs(array $urlArgs): Message
     {
         $this->urlArgs = $urlArgs;
 
@@ -403,7 +387,7 @@ class Message
      *
      * @return array|null
      */
-    public function getCustom()
+    public function getCustom(): ?array
     {
         return $this->custom;
     }
@@ -411,11 +395,10 @@ class Message
     /**
      * Set Custom Data
      *
-     * @param  array                      $custom
-     * @throws Exception\RuntimeException
+     * @param array $custom
      * @return Message
      */
-    public function setCustom(array $custom)
+    public function setCustom(array $custom): Message
     {
         if (array_key_exists('aps', $custom)) {
             throw new Exception\RuntimeException('custom data must not contain aps key as it is reserved by apple');
@@ -432,36 +415,36 @@ class Message
      *
      * @return array
      */
-    public function getPayload()
+    public function getPayload(): array
     {
         $message = [];
         $aps = [];
         if ($this->alert && ($alert = $this->alert->getPayload())) {
             $aps['alert'] = $alert;
         }
-        if (! is_null($this->badge)) {
+        if (!is_null($this->badge)) {
             $aps['badge'] = $this->badge;
         }
-        if (! is_null($this->sound)) {
+        if (!is_null($this->sound)) {
             $aps['sound'] = $this->sound;
         }
-        if (! is_null($this->mutableContent)) {
+        if (!is_null($this->mutableContent)) {
             $aps['mutable-content'] = $this->mutableContent;
         }
-        if (! is_null($this->contentAvailable)) {
+        if (!is_null($this->contentAvailable)) {
             $aps['content-available'] = $this->contentAvailable;
         }
-        if (! is_null($this->category)) {
+        if (!is_null($this->category)) {
             $aps['category'] = $this->category;
         }
-        if (! is_null($this->urlArgs)) {
+        if (!is_null($this->urlArgs)) {
             $aps['url-args'] = $this->urlArgs;
         }
-        if (! empty($this->custom)) {
+        if (!empty($this->custom)) {
             $message = array_merge($this->custom, $message);
         }
 
-        $message['aps'] = empty($aps) ? (object) [] : $aps;
+        $message['aps'] = empty($aps) ? (object)[] : $aps;
 
         return $message;
     }
@@ -471,14 +454,14 @@ class Message
      *
      * @return string
      */
-    public function getPayloadJson()
+    public function getPayloadJson(): string
     {
         $payload = $this->getPayload();
         // don't escape utf8 payloads unless json_encode does not exist.
         if (defined('JSON_UNESCAPED_UNICODE')) {
             $payload = json_encode($payload, JSON_UNESCAPED_UNICODE);
         } else {
-            $payload = JsonEncoder::encode($payload);
+            $payload = Encoder::encode($payload);
         }
         return $payload;
         /*$length = strlen($payload);

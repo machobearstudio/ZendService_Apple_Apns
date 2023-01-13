@@ -27,58 +27,55 @@ class Message
      * Response Codes (see https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/handling_notification_responses_from_apns?language=objc)
      * @var int
      */
-    const RESULT_OK = 200;
-    const RESULT_BAD_REQUEST = 400;
-    const RESULT_BAD_AUTH = 403;
-    const RESULT_INVALID_PATH = 404;
-    const RESULT_INVALID_METHOD = 405;
-    const RESULT_INVALID_TOKEN = 410;
-    const RESULT_INVALID_PAYLOAD_SIZE = 413;
-    const RESULT_TOO_MANY_REQUESTS = 429;
-    const RESULT_INTERNAL_SERVER_ERROR = 500;
-    const RESULT_SERVER_UNAVAILABLE = 503;
+    final const RESULT_OK = 200;
+    final const RESULT_BAD_REQUEST = 400;
+    final const RESULT_BAD_AUTH = 403;
+    final const RESULT_INVALID_PATH = 404;
+    final const RESULT_INVALID_METHOD = 405;
+    final const RESULT_INVALID_TOKEN = 410;
+    final const RESULT_INVALID_PAYLOAD_SIZE = 413;
+    final const RESULT_TOO_MANY_REQUESTS = 429;
+    final const RESULT_INTERNAL_SERVER_ERROR = 500;
+    final const RESULT_SERVER_UNAVAILABLE = 503;
 
     // old consts
-    //const RESULT_OK = 0;
-    //const RESULT_PROCESSING_ERROR = 1;
-    //const RESULT_MISSING_TOKEN = 2;
-    //const RESULT_MISSING_TOPIC = 3;
-    //const RESULT_MISSING_PAYLOAD = 4;
-    //const RESULT_INVALID_TOKEN_SIZE = 5;
-    //const RESULT_INVALID_TOPIC_SIZE = 6;
-    //const RESULT_INVALID_PAYLOAD_SIZE = 7;
-    //const RESULT_INVALID_TOKEN = 8;
-    //const RESULT_UNKNOWN_ERROR = 255;
+    const RESULT_MISSING_TOKEN = 2;
+    const RESULT_MISSING_TOPIC = 3;
+    const RESULT_MISSING_PAYLOAD = 4;
+    const RESULT_INVALID_TOKEN_SIZE = 5;
+    const RESULT_INVALID_TOPIC_SIZE = 6;
+    const RESULT_UNKNOWN_ERROR = 255;
 
     /**
      * Identifier
-     * @var string
+     * @var null|string
      */
-    protected $id;
+    protected ?string $id;
 
     /**
      * Result Code
      * @var int
      */
-    protected $code;
+    protected int $code;
 
     /**
      * Result JSON body
      * @var string
      */
-    protected $body;
+    protected string $body;
 
     /**
      * Constructor
      *
-     * @param  string  $rawResponse
+     * @param string|null $rawResponse
      * @return Message
      */
-    public function __construct($rawResponse = null)
+    public function __construct(string $rawResponse = null)
     {
         if ($rawResponse !== null) {
             $this->parseRawResponse($rawResponse);
         }
+        return $this;
     }
 
     /**
@@ -86,7 +83,7 @@ class Message
      *
      * @return int
      */
-    public function getCode()
+    public function getCode(): int
     {
         return $this->code;
     }
@@ -94,10 +91,10 @@ class Message
     /**
      * Set Code
      *
-     * @param  int     $code
+     * @param int $code
      * @return Message
      */
-    public function setCode($code)
+    public function setCode(int $code): Message
     {
         if ($code < 200 || $code > 503) {
             throw new Exception\InvalidArgumentException('Code must be between 200 and 503');
@@ -110,9 +107,9 @@ class Message
     /**
      * Get Identifier
      *
-     * @return string
+     * @return ?string
      */
-    public function getId()
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -120,14 +117,11 @@ class Message
     /**
      * Set Identifier
      *
-     * @param  string  $id
+     * @param ?string $id
      * @return Message
      */
-    public function setId($id)
+    public function setId(?string $id): Message
     {
-        if (! is_scalar($id)) {
-            throw new Exception\InvalidArgumentException('Identifier must be a scalar value');
-        }
         $this->id = $id;
 
         return $this;
@@ -137,21 +131,18 @@ class Message
      * Return Response Body
      * @return string
      */
-    public function getBody()
+    public function getBody(): string
     {
         return $this->body;
     }
 
     /**
      * set Response JSON Body
-     * @param  string  $body
+     * @param string $body
      * @return Message
      */
-    public function setBody($body)
+    public function setBody(string $body): Message
     {
-        if (! is_string($body)) {
-            throw new Exception\InvalidArgumentException('Body must be a string value');
-        }
         $this->body = $body;
         return $this;
     }
@@ -159,12 +150,13 @@ class Message
     /**
      * Parse Raw Response
      *
-     * @param  string  $rawResponse
+     * @param string $rawResponse
      * @return Message
+     * @noinspection PhpConditionAlreadyCheckedInspection
      */
-    public function parseRawResponse($rawResponse)
+    public function parseRawResponse(string $rawResponse): Message
     {
-        if (! is_scalar($rawResponse)) {
+        if (!is_scalar($rawResponse)) {
             throw new Exception\InvalidArgumentException('Response must be a scalar value');
         }
 

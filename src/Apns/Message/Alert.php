@@ -21,76 +21,77 @@ class Alert
      * Message Body
      * @var string|null
      */
-    protected $body;
+    protected ?string $body = null;
 
     /**
      * Action
      * @var string|null
      */
-    protected $action;
+    protected ?string $action = null;
 
     /**
      * Action Locale Key
      * @var string|null
      */
-    protected $actionLocKey;
+    protected ?string $actionLocKey = null;
 
     /**
      * Locale Key
      * @var string|null
      */
-    protected $locKey;
+    protected ?string $locKey = null;
 
     /**
      * Locale Arguments
      * @var array|null
      */
-    protected $locArgs;
+    protected ?array $locArgs;
 
     /**
      * Launch Image
      * @var string|null
      */
-    protected $launchImage;
+    protected ?string $launchImage = null;
 
     /**
      * Message Title
      * @var string|null
      */
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * Title Locale Key
      * @var string|null
      */
-    protected $titleLocKey;
+    protected ?string $titleLocKey = null;
 
     /**
      * Title Locale Arguments
      * @var array|null
      */
-    protected $titleLocArgs;
+    protected ?array $titleLocArgs;
 
     /**
      * Constructor
      *
-     * @param  string $body
-     * @param  string $actionLocKey
-     * @param  string $locKey
-     * @param  array  $locArgs
-     * @param  string $launchImage
+     * @param string|null $body
+     * @param string|null $actionLocKey
+     * @param string|null $locKey
+     * @param array|null $locArgs
+     * @param string|null $launchImage
      * @return Alert
      */
     public function __construct(
-        $body = null,
-        $actionLocKey = null,
-        $locKey = null,
-        $locArgs = null,
-        $launchImage = null,
-        $title = null,
-        $titleLocKey = null,
-        $titleLocArgs = null
-    ) {
+        string $body = null,
+        string $actionLocKey = null,
+        string $locKey = null,
+        array  $locArgs = null,
+        string $launchImage = null,
+               $title = null,
+               $titleLocKey = null,
+               $titleLocArgs = null
+    )
+    {
         if ($body !== null) {
             $this->setBody($body);
         }
@@ -115,27 +116,23 @@ class Alert
         if ($titleLocArgs !== null) {
             $this->setTitleLocArgs($titleLocArgs);
         }
+        return $this;
     }
 
     /**
      * Get Body
-     *
-     * @return string|null
      */
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->body;
     }
 
     /**
      * Set Body
-     *
-     * @param  string|null $body
-     * @return Alert
      */
-    public function setBody($body)
+    public function setBody(?string $body): Alert
     {
-        if (! is_null($body) && ! is_scalar($body)) {
+        if (!is_null($body) && !is_scalar($body)) {
             throw new Exception\InvalidArgumentException('Body must be null OR a scalar value');
         }
         $this->body = $body;
@@ -145,10 +142,9 @@ class Alert
 
     /**
      * Get Action
-     *
-     * @return string|null
+     * @noinspection PhpUnused
      */
-    public function getAction()
+    public function getAction(): ?string
     {
         return $this->action;
     }
@@ -156,12 +152,13 @@ class Alert
     /**
      * Set Action
      *
-     * @param  string|null $key
+     * @param string|null $key
      * @return Alert
+     * @noinspection PhpUnused
      */
-    public function setAction($key)
+    public function setAction(?string $key): Alert
     {
-        if (! is_null($key) && ! is_scalar($key)) {
+        if (!is_null($key) && !is_scalar($key)) {
             throw new Exception\InvalidArgumentException('Action must be null OR a scalar value');
         }
         $this->action = $key;
@@ -171,10 +168,8 @@ class Alert
 
     /**
      * Get Action Locale Key
-     *
-     * @return string|null
      */
-    public function getActionLocKey()
+    public function getActionLocKey(): ?string
     {
         return $this->actionLocKey;
     }
@@ -182,13 +177,13 @@ class Alert
     /**
      * Set Action Locale Key
      *
-     * @param  string|null $key
+     * @param string|null $key
      * @return Alert
      */
-    public function setActionLocKey($key)
+    public function setActionLocKey(?string $key): Alert
     {
-        if (! is_null($key) && ! is_scalar($key)) {
-            throw new Exception\InvalidArgumentException('ActionLocKey must be null OR a scalar value');
+        if (!is_null($key) && empty($key)) {
+            throw new Exception\InvalidArgumentException('ActionLocKey must be null OR a non empty string value');
         }
         $this->actionLocKey = $key;
 
@@ -200,7 +195,7 @@ class Alert
      *
      * @return string|null
      */
-    public function getLocKey()
+    public function getLocKey(): ?string
     {
         return $this->locKey;
     }
@@ -208,13 +203,13 @@ class Alert
     /**
      * Set Locale Key
      *
-     * @param  string|null $key
+     * @param string|null $key
      * @return Alert
      */
-    public function setLocKey($key)
+    public function setLocKey(?string $key): Alert
     {
-        if (! is_null($key) && ! is_scalar($key)) {
-            throw new Exception\InvalidArgumentException('LocKey must be null OR a scalar value');
+        if (!is_null($key) && empty($key)) {
+            throw new Exception\InvalidArgumentException('LocKey must be null OR a non empty string value');
         }
         $this->locKey = $key;
 
@@ -226,7 +221,7 @@ class Alert
      *
      * @return array|null
      */
-    public function getLocArgs()
+    public function getLocArgs(): ?array
     {
         return $this->locArgs;
     }
@@ -234,13 +229,13 @@ class Alert
     /**
      * Set Locale Arguments
      *
-     * @param  array $args
+     * @param array $args
      * @return Alert
      */
-    public function setLocArgs(array $args)
+    public function setLocArgs(array $args): Alert
     {
         foreach ($args as $a) {
-            if (! is_scalar($a)) {
+            if (!is_scalar($a)) {
                 throw new Exception\InvalidArgumentException('Arguments must only contain scalar values');
             }
         }
@@ -254,7 +249,7 @@ class Alert
      *
      * @return string|null
      */
-    public function getLaunchImage()
+    public function getLaunchImage(): ?string
     {
         return $this->launchImage;
     }
@@ -262,12 +257,12 @@ class Alert
     /**
      * Set Launch Image
      *
-     * @param  string|null $image
+     * @param string|null $image
      * @return Alert
      */
-    public function setLaunchImage($image)
+    public function setLaunchImage(?string $image): Alert
     {
-        if (! is_null($image) && ! is_scalar($image)) {
+        if (!is_null($image) && !is_scalar($image)) {
             throw new Exception\InvalidArgumentException('Launch image must be null OR a scalar value');
         }
         $this->launchImage = $image;
@@ -280,7 +275,7 @@ class Alert
      *
      * @return string|null
      */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -288,12 +283,12 @@ class Alert
     /**
      * Set Title
      *
-     * @param  string|null $title
+     * @param string|null $title
      * @return Alert
      */
-    public function setTitle($title)
+    public function setTitle(?string $title): Alert
     {
-        if (! is_null($title) && ! is_scalar($title)) {
+        if (!is_null($title) && !is_scalar($title)) {
             throw new Exception\InvalidArgumentException('Title must be null OR a scalar value');
         }
         $this->title = $title;
@@ -306,7 +301,7 @@ class Alert
      *
      * @return string|null
      */
-    public function getTitleLocKey()
+    public function getTitleLocKey(): ?string
     {
         return $this->titleLocKey;
     }
@@ -314,12 +309,12 @@ class Alert
     /**
      * Set Title Locale Key
      *
-     * @param  string|null $key
+     * @param string|null $key
      * @return Alert
      */
-    public function setTitleLocKey($key)
+    public function setTitleLocKey(?string $key): Alert
     {
-        if (! is_null($key) && ! is_scalar($key)) {
+        if (!is_null($key) || !is_scalar($key)) {
             throw new Exception\InvalidArgumentException('TitleLocKey must be null OR a scalar value');
         }
         $this->titleLocKey = $key;
@@ -332,7 +327,7 @@ class Alert
      *
      * @return array|null
      */
-    public function getTitleLocArgs()
+    public function getTitleLocArgs(): ?array
     {
         return $this->titleLocArgs;
     }
@@ -340,13 +335,13 @@ class Alert
     /**
      * Set Title Locale Arguments
      *
-     * @param  array $args
+     * @param array $args
      * @return Alert
      */
-    public function setTitleLocArgs(array $args)
+    public function setTitleLocArgs(array $args): Alert
     {
         foreach ($args as $a) {
-            if (! is_scalar($a)) {
+            if (!is_scalar($a)) {
                 throw new Exception\InvalidArgumentException('Title Arguments must only contain scalar values');
             }
         }
@@ -358,10 +353,8 @@ class Alert
     /**
      * To Payload
      * Formats an APS alert.
-     *
-     * @return array|string
      */
-    public function getPayload()
+    public function getPayload(): null|array|string
     {
         $vars = get_object_vars($this);
         if (empty($vars)) {
@@ -370,7 +363,7 @@ class Alert
 
         $alert = [];
         foreach ($vars as $key => $value) {
-            if (! is_null($value)) {
+            if (!is_null($value)) {
                 $key = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $key));
                 $alert[$key] = $value;
             }

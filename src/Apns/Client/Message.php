@@ -27,13 +27,10 @@ class Message extends AbstractClient
 {
     /**
      * Send Message
-     *
-     * @param ApnsMessage $message
-     * @return MessageResponse
      */
-    public function send(ApnsMessage $message)
+    public function send(ApnsMessage $message): MessageResponse
     {
-        if (! $this->isConnected()) {
+        if (!$this->isConnected()) {
             throw new Exception\RuntimeException('You must first open the connection by calling open()');
         }
 

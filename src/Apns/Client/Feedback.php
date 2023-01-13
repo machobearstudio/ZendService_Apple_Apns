@@ -22,7 +22,7 @@ class Feedback extends AbstractClient
      * APNS URIs
      * @var array
      */
-    protected $uris = [
+    protected array $uris = [
         'tlsv1.2://feedback.sandbox.push.apple.com:2196',
         'tlsv1.2://feedback.push.apple.com:2196'
     ];
@@ -32,7 +32,7 @@ class Feedback extends AbstractClient
      *
      * @return array of ZendService\Apple\Apns\Response\Feedback
      */
-    public function feedback()
+    public function feedback(): array
     {
         if (! $this->isConnected()) {
             throw new Exception\RuntimeException('You must first open the connection by calling open()');

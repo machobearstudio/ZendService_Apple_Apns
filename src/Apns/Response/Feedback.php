@@ -21,33 +21,35 @@ class Feedback
      * APNS Token
      * @var string
      */
-    protected $token;
+    protected string $token;
 
     /**
      * Time
      * @var int
      */
-    protected $time;
+    protected int $time;
 
     /**
      * Constructor
      *
-     * @param  string   $rawResponse
+     * @param string|null $rawResponse
      * @return Feedback
      */
-    public function __construct($rawResponse = null)
+    public function __construct(string $rawResponse = null)
     {
         if ($rawResponse !== null) {
             $this->parseRawResponse($rawResponse);
         }
+        return $this;
     }
 
     /**
      * Get Token
      *
      * @return string
+     * @noinspection PhpUnused
      */
-    public function getToken()
+    public function getToken(): string
     {
         return $this->token;
     }
@@ -55,11 +57,12 @@ class Feedback
     /**
      * Set Token
      *
+     * @param $token
      * @return Feedback
      */
-    public function setToken($token)
+    public function setToken($token): Feedback
     {
-        if (! is_scalar($token)) {
+        if (!is_scalar($token)) {
             throw new Exception\InvalidArgumentException('Token must be a scalar value');
         }
         $this->token = $token;
@@ -71,8 +74,9 @@ class Feedback
      * Get Time
      *
      * @return int
+     * @noinspection PhpUnused
      */
-    public function getTime()
+    public function getTime(): int
     {
         return $this->time;
     }
@@ -80,12 +84,12 @@ class Feedback
     /**
      * Set Time
      *
-     * @param  int      $time
+     * @param int $time
      * @return Feedback
      */
-    public function setTime($time)
+    public function setTime(int $time): Feedback
     {
-        $this->time = (int) $time;
+        $this->time = $time;
 
         return $this;
     }
@@ -93,14 +97,15 @@ class Feedback
     /**
      * Parse Raw Response
      *
+     * @param $rawResponse
      * @return Feedback
      */
-    public function parseRawResponse($rawResponse)
+    public function parseRawResponse($rawResponse): Feedback
     {
-        $rawResponse = trim($rawResponse);
+        $rawResponse = trim((string)$rawResponse);
         $token = unpack('Ntime/nlength/H*token', $rawResponse);
         $this->setTime($token['time']);
-        $this->setToken(substr($token['token'], 0, $token['length'] * 2));
+        $this->setToken(substr((string)$token['token'], 0, $token['length'] * 2));
 
         return $this;
     }

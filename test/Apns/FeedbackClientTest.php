@@ -11,6 +11,7 @@
 namespace ZendServiceTest\Apple\Apns;
 
 use PHPUnit\Framework\TestCase;
+use ZendService\Apple\Apns\Client\AbstractClient;
 use ZendServiceTest\Apple\Apns\TestAsset\FeedbackClient;
 
 /**
@@ -23,14 +24,14 @@ use ZendServiceTest\Apple\Apns\TestAsset\FeedbackClient;
  */
 class FeedbackClientTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->apns = new FeedbackClient();
     }
 
     protected function setupValidBase()
     {
-        $this->apns->open(FeedbackClient::SANDBOX_URI, __DIR__ . '/TestAsset/certificate.pem');
+        $this->apns->open(AbstractClient::SANDBOX_URI, __DIR__ . '/TestAsset/certificate.pem');
     }
 
     public function testFeedback()

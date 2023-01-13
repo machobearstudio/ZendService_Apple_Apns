@@ -8,9 +8,9 @@
 namespace ZendServiceTest\Apple\Apns;
 
 use InvalidArgumentException;
+use Laminas\Json\Encoder;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Zend\Json\Encoder as JsonEncoder;
 use ZendService\Apple\Apns\Message;
 use ZendService\Apple\Apns\Message\Alert;
 
@@ -24,7 +24,7 @@ use ZendService\Apple\Apns\Message\Alert;
  */
 class MessageTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->alert = new Alert();
         $this->message = new Message();
@@ -34,9 +34,9 @@ class MessageTest extends TestCase
     {
         $text = 'my alert';
         $ret = $this->message->setAlert($text);
-        $this->assertInstanceOf('ZendService\Apple\Apns\Message', $ret);
+        $this->assertInstanceOf(Message::class, $ret);
         $checkText = $this->message->getAlert();
-        $this->assertInstanceOf('ZendService\Apple\Apns\Message\Alert', $checkText);
+        $this->assertInstanceOf(Alert::class, $checkText);
         $this->assertEquals($text, $checkText->getBody());
     }
 
@@ -49,31 +49,19 @@ class MessageTest extends TestCase
     public function testSetAlertThrowsExceptionOnActionLocKeyNonString()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->alert->setActionLocKey([]);
+        $this->alert->setActionLocKey("");
     }
 
     public function testSetAlertThrowsExceptionOnLocKeyNonString()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->alert->setLocKey([]);
+        $this->alert->setLocKey("");
     }
 
     public function testSetAlertThrowsExceptionOnLaunchImageNonString()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->alert->setLaunchImage([]);
-    }
-
-    public function testSetAlertThrowsExceptionOnTitleNonString()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->alert->setTitle([]);
-    }
-
-    public function testSetAlertThrowsExceptionOnTitleLocKeyNonString()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->alert->setTitleLocKey([]);
+        $this->alert->setLaunchImage(null);
     }
 
     public function testSetBadgeReturnsCorrectNumber()
@@ -118,7 +106,7 @@ class MessageTest extends TestCase
     public function testSetSoundThrowsExceptionOnNonScalar()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->message->setSound([]);
+        $this->message->setSound("");
     }
 
     public function testSetSoundThrowsExceptionOnNonString()
@@ -129,10 +117,8 @@ class MessageTest extends TestCase
 
     /**
      * @dataProvider provideSetMutableContentThrowsExceptionOnNonIntegerOneOrNullData
-     *
-     * @param mixed $value
      */
-    public function testSetMutableContentThrowsExceptionOnNonIntegerOneAndNull($value)
+    public function testSetMutableContentThrowsExceptionOnNonIntegerOneAndNull(mixed $value)
     {
         $this->expectException(InvalidArgumentException::class);
         $this->message->setMutableContent($value);
@@ -145,13 +131,13 @@ class MessageTest extends TestCase
     {
         return [
             'unsupported positive integer' => ['value' => 2],
-            'zero integer'                 => ['value' => 0],
-            'negative integer'             => ['value' => -1],
-            'boolean'                      => ['value' => true],
-            'string'                       => ['value' => 'any string'],
-            'float'                        => ['value' => 123.12],
-            'array'                        => ['value' => []],
-            'object'                       => ['value' => new stdClass()],
+            'zero integer' => ['value' => 0],
+            'negative integer' => ['value' => -1],
+            'boolean' => ['value' => true],
+            'string' => ['value' => 'any string'],
+            'float' => ['value' => 123.12],
+            'array' => ['value' => []],
+            'object' => ['value' => new stdClass()],
         ];
     }
 
@@ -163,11 +149,14 @@ class MessageTest extends TestCase
         $this->assertEquals($value, $payload['aps']['mutable-content']);
     }
 
+    /**
+     * @throws \JsonException
+     */
     public function testSetMutableContentResultsInCorrectPayloadWithNullValue()
     {
         $this->message->setMutableContent(null);
         $json = $this->message->getPayloadJson();
-        $payload = json_decode($json, true);
+        $payload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         $this->assertFalse(isset($payload['aps']['mutable-content']));
     }
 
@@ -202,7 +191,7 @@ class MessageTest extends TestCase
     public function testSetCategoryThrowsExceptionOnNonScalar()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->message->setCategory([]);
+        $this->message->setCategory(null);
     }
 
     public function testSetCategoryThrowsExceptionOnNonString()
@@ -306,7 +295,7 @@ class MessageTest extends TestCase
                 . $payloadJson;
             $this->assertEquals($this->message->getPayloadJson(), $result);
         } else {
-            $payloadJson = JsonEncoder::encode($payload);
+            $payloadJson = Encoder::encode($payload);
             $this->assertEquals($payloadJson, '{"aps":{"alert":"hi=\u043f\u0440\u0438\u0432\u0435\u0442"}}');
             $length = 59; // (23 + (6 * 6) because UTF-8 (Russian) "привет" converts into 6 bytes/letter
             $result =
@@ -327,7 +316,7 @@ class MessageTest extends TestCase
     public function testCustomDataPayloadIncludesEmptyApsObject()
     {
         $data = ['custom' => 'data'];
-        $expected = array_merge($data, ['aps' => (object) []]);
+        $expected = [...$data, ...['aps' => (object)[]]];
         $this->message->setCustom($data);
 
         $payload = $this->message->getPayload();
