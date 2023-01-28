@@ -1,5 +1,5 @@
 {
-  "name": "zendframework/zendservice-apple-apns",
+  "name": "machobearstudio/zendservice-apple-apns",
   "description": "OOP Zend Framework wrapper for Apple Push Notification Service",
   "license": "BSD-3-Clause",
   "keywords": [
